@@ -14,7 +14,7 @@ int main(int argc, char **argv)
 	MPI_Comm_rank(MPI_COMM_WORLD, &myid);
 	MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
 	
-	srand((int)time(0));
+	srand((int)time(0)+myid);
 
 	double y, x, pi = 0.0, n = 0.0;
 	long m = 0, m1 = 0, i = 0, p = 0;

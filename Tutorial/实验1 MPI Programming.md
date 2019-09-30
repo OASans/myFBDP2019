@@ -22,7 +22,7 @@
 
 `sudo vim /etc/hosts`
 
-![image-20190929232536320](/Users/ishi/Library/Application Support/typora-user-images/image-20190929232536320.png)
+![image-20190929232536320](./images/10.png)
 
 ### 2.2 检查节点之间的网络连接
 

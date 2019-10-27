@@ -9,7 +9,6 @@
 新建IDEA项目时选择Maven项目
 
 <div align=center><img src="/Users/ishi/Desktop/Screenshot 2019-10-22 at 16.11.05.png" width="800"/></div>
-
 在项目的pom.xml中根据个人hadoop版本，添加配置
 
 ```
@@ -56,13 +55,13 @@
 
 在`Project Structure-Modules`中导入Hadoop配置中的jar包作为依赖
 
-![image-20191022161725205](/Users/ishi/Library/Application Support/typora-user-images/image-20191022161725205.png)
+![image-20191022161725205](./截图/jar.png)
 
 在resources中导入Hadoop配置文件coresite.xml、hdfs-site.xml
 
 在main下编写好代码后，在`Run-Edit Configurations`中新建Application，选择代码运行主类，并在Program arguments中输入HDFS文件系统中输入输出文件的路径以及其他参数。此后便可正常运行。
 
-![image-20191022161926726](/Users/ishi/Library/Application Support/typora-user-images/image-20191022161926726.png)
+![image-20191022161926726](./截图/configuration.png)
 
 
 

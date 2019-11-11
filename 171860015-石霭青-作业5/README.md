@@ -10,8 +10,8 @@
 
 以下为代码运行截图与HDFS文件系统中的output文件夹截图
 
-![idea](./运行截图/idea.png)
+![idea](运行截图/idea.png)
 
 
 
-![hdfs](./运行截图/hdfs.png)
+![hdfs](运行截图/hdfs.png)

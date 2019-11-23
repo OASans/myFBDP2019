@@ -1,6 +1,6 @@
-#README
+# README
 
-###文件说明
+### 文件说明
 
 「代码」文件夹中存放KMeans算法MapReduce代码
 

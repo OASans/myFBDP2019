@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import exp3.User;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -20,44 +21,56 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class Stage1 {
 
-    public static class Stage11Mapper extends Mapper<LongWritable, Text, IntWritable, IntWritable> {
+    public static class Stage11Mapper extends Mapper<LongWritable, Text, Text, IntWritable> {
 
         @Override
         protected void map(LongWritable key, Text line, Context context) throws IOException, InterruptedException {
+
             if (!line.toString().equals("")) {
                 User user_record = new User(line.toString());
-                context.write(new IntWritable(user_record.getItem_id()), new IntWritable(1));
+                context.write(new Text(user_record.getProvince()), new IntWritable(user_record.getItem_id()));
             }
+
         }
+
     }
 
-    public static class Stage12Mapper extends Mapper<LongWritable, Text, IntWritable, IntWritable> {
+    public static class Stage12Mapper extends Mapper<LongWritable, Text, Text, IntWritable> {
 
         @Override
         protected void map(LongWritable key, Text line, Context context) throws IOException, InterruptedException {
             if (!line.toString().equals("")) {
                 User user_record = new User(line.toString());
                 if (user_record.getAction() == 2) {
-                    context.write(new IntWritable(user_record.getItem_id()), new IntWritable(1));
+                    context.write(new Text(user_record.getProvince()), new IntWritable(user_record.getItem_id()));
                 }
             }
         }
     }
 
-    public static class Stage1Reducer extends Reducer<IntWritable, IntWritable, IntWritable, IntWritable> {
+    public static class Stage1Reducer extends Reducer<Text, IntWritable, Text, IntWritable> {
 
-        TreeMap treemap = new TreeMap<User, Object>();
+        TreeMap treemap = new TreeMap<String, Integer>();
+        ValueComparator bvc = new ValueComparator(treemap);
+        TreeMap sortedmap = new TreeMap<String, Integer>(bvc);
+
+        Text provinceName = new Text();
+
         @Override
-        protected void reduce(IntWritable key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
-            int sum = 0;
-            for (IntWritable i : values) {
-                sum += i.get();
+        protected void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
+
+            provinceName = key;
+            for (IntWritable i : values){
+
+                if(treemap.get(i+"")!=null) {
+                    int value = Integer.parseInt(treemap.get(i+"").toString());
+                    treemap.put(i+"", value+1);
+
+                } else {
+                    treemap.put(i+"", 1);
+                }
             }
 
-            User item_result = new User();
-            item_result.setItem_id(key.get());
-            item_result.setAction(sum);
-            treemap.put(item_result, null);
         }
 
         @Override
@@ -65,10 +78,13 @@ public class Stage1 {
             Configuration conf = context.getConfiguration();
             int topn = conf.getInt("top.n", 10);
 
-            Set<Map.Entry<User, Object>> entrySet = treemap.entrySet();
+            sortedmap.putAll(treemap);
+            Set<Map.Entry<String, Integer>> entrySet = sortedmap.entrySet();
             int i = 0;
-            for (Map.Entry<User, Object> entry : entrySet) {
-                context.write(new IntWritable(entry.getKey().getItem_id()), new IntWritable(entry.getKey().getAction()));
+
+            context.write(provinceName, null);
+            for (Map.Entry<String, Integer> entry : entrySet) {
+                context.write(new Text((entry.getKey())), new IntWritable(entry.getValue()));
                 i++;
                 if (i==topn) {
                     return;
@@ -87,17 +103,19 @@ public class Stage1 {
         job.setJarByClass(Stage1.class);
 
         // 阶段一任务1的Mapper
-        // job.setMapperClass(Stage11Mapper.class);
+         //job.setMapperClass(Stage11Mapper.class);
         // 阶段一任务2的Mapper
         job.setMapperClass(Stage12Mapper.class);
 
-        job.setReducerClass(Stage1Reducer.class);
-
-        job.setMapOutputKeyClass(IntWritable.class);
+        job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(IntWritable.class);
 
-        job.setOutputKeyClass(IntWritable.class);
+        job.setReducerClass(Stage1Reducer.class);
+
+        job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
+
+        job.setNumReduceTasks(40);
 
         FileInputFormat.setInputPaths(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));

@@ -72,6 +72,8 @@ public class User implements WritableComparable<User>{
         return this.action;
     }
 
+    public String getProvince() { return this.province; }
+
     public void setItem_id(int key) {
         this.item_id = key;
     }
@@ -79,6 +81,8 @@ public class User implements WritableComparable<User>{
     public void setAction(int value) {
         this.action = value;
     }
+
+    public void setProvince(String s) { this.province = s; }
 
     @Override
     public String toString() {
@@ -119,10 +123,10 @@ public class User implements WritableComparable<User>{
 
     @Override
     public int compareTo(User o) {
-        int thisValue = this.action;
-        int thatValue = o.action;
-        return (thisValue > thatValue ? -1 : (thisValue==thatValue ? 0 : 1));
-    }
+        String thisValue = this.province;
+        String thatValue = o.province;
 
+        return thisValue.compareTo(thatValue);
+    }
 
 }
